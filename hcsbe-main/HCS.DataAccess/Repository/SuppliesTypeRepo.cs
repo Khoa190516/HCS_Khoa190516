@@ -8,7 +8,7 @@ namespace HCS.DataAccess.Repository;
 public interface ISuppliesTypeRepo : IGenericRepo<SuppliesType>
 {
     Task<SuppliesType?> GetSuppliesByTypeAsync(int id);
-    Task<bool> AddSuppliesPrescription(int medicalRecordId, List<SuppliesPrescription> supplyPrescriptions);
+    Task<bool> AddSuppliesPrescription(int medicalRecordId, List<SuppliesPrescription> supplyPrescriptions, string diagnose);
     Task<List<SuppliesPrescription>> GetSelectedSuppliesByMrIdAsync(int id);
     Task<bool> RemoveById(int id);
 }
@@ -41,7 +41,7 @@ public class SuppliesTypeRepo : GenericRepo<SuppliesType>, ISuppliesTypeRepo
         return supplyType;
     }
 
-    public async Task<bool> AddSuppliesPrescription(int medicalRecordId, List<SuppliesPrescription> supplyPrescriptions)
+    public async Task<bool> AddSuppliesPrescription(int medicalRecordId, List<SuppliesPrescription> supplyPrescriptions, string diagnose)
     {
         var mr = await _context.MedicalRecords
             .Where(x => x.MedicalRecordId == medicalRecordId)
@@ -52,20 +52,26 @@ public class SuppliesTypeRepo : GenericRepo<SuppliesType>, ISuppliesTypeRepo
 
         if(mr is not null && mr.ExaminationResult is not null)
         {
+            
+
             if(mr.ExaminationResult.Prescription is null)
             {
                 mr.ExaminationResult.Prescription = new Prescription()
                 {
                     CreateDate = DateTime.Now,
-                    Diagnose = mr.ExaminationResult.Conclusion,
+                    Diagnose = diagnose,
                 };
+            }
+            else
+            {
+                mr.ExaminationResult.Prescription.Diagnose = diagnose;
             }
 
            if(mr.ExaminationResult.Prescription.SuppliesPrescriptions is null)
            {
                 mr.ExaminationResult.Prescription.SuppliesPrescriptions = new List<SuppliesPrescription>();
                 mr.ExaminationResult.Prescription.SuppliesPrescriptions = supplyPrescriptions;
-                
+
                 //update stock of supplies
                 //foreach(var supPre in supplyPrescriptions)
                 //{
@@ -75,7 +81,7 @@ public class SuppliesTypeRepo : GenericRepo<SuppliesType>, ISuppliesTypeRepo
                 //        supply.UnitInStock -= (short)supPre.Quantity;
                 //    }
                 //}
-
+                mr.ExaminationResult.Prescription.Diagnose = diagnose;
                 return true;
            }
             else
@@ -107,8 +113,10 @@ public class SuppliesTypeRepo : GenericRepo<SuppliesType>, ISuppliesTypeRepo
                 //        supply.UnitInStock -= (short)supPre.Quantity;
                 //    }
                 //}
+                mr.ExaminationResult.Prescription.Diagnose = diagnose;
                 return true;
             }
+            
         }
         return false;
     }

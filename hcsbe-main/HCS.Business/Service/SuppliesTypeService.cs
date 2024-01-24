@@ -164,7 +164,7 @@ public class SuppliesTypeService : ISuppliesTypeService
             };
             supplyPresEntity.Add(supplyPreEntity);
         }
-        var isSuccess = await _unitOfWork.SuppliesTypeRepo.AddSuppliesPrescription(mrId, supplyPresEntity);
+        var isSuccess = await _unitOfWork.SuppliesTypeRepo.AddSuppliesPrescription(mrId, supplyPresEntity, supplyPresAddModel.Diagnose);
         
         response.SetBadRequest("add failed");
 

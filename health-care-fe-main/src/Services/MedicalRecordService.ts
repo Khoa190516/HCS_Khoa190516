@@ -238,6 +238,54 @@ const getReCheckUpByPrevMrId = async (
   }
 };
 
+const getPreDiagnoseByMrId = async (
+  id: number
+): Promise<string | undefined> => {
+  try {
+    const token = localStorage.getItem(TOKEN);
+    if (token !== null) {
+      var uToken: JWTTokenModel = jwtDecode(token);
+
+      if (uToken !== null) {
+        var url = `${apiLinks.medicalRecords.getPreDiagnoseByMrId}${id}`;
+        const response = await httpClient.get({
+          url: url,
+          authorization: `Bearer ${token}`,
+        });
+        return response.data.result as string;
+      }
+    }
+    return undefined;
+  } catch (e) {
+    console.log(e);
+    return undefined;
+  }
+};
+
+const getNextMrIdsByMrId = async (
+  id: number
+): Promise<number[] | undefined> => {
+  try {
+    const token = localStorage.getItem(TOKEN);
+    if (token !== null) {
+      var uToken: JWTTokenModel = jwtDecode(token);
+
+      if (uToken !== null) {
+        var url = `${apiLinks.medicalRecords.getNextMrIdsByMrId}${id}`;
+        const response = await httpClient.get({
+          url: url,
+          authorization: `Bearer ${token}`,
+        });
+        return response.data.result as number[];
+      }
+    }
+    return undefined;
+  } catch (e) {
+    console.log(e);
+    return undefined;
+  }
+};
+
 const medicalRecordService = {
   addMedicalRecord: addMedicalRecord,
   getMedicalRecordsByPatientId: getMedicalRecordsByPatientId,
@@ -248,6 +296,8 @@ const medicalRecordService = {
   getReCheckUpByPrevMrId: getReCheckUpByPrevMrId,
   getMedicalRecordsUnCheckByPatientId: getMedicalRecordsUnCheckByPatientId,
   getMedicalRecordsUnPaidByPatientId: getMedicalRecordsUnPaidByPatientId,
+  getPreDiagnoseByMrId: getPreDiagnoseByMrId,
+  getNextMrIdsByMrId: getNextMrIdsByMrId,
 };
 
 export default medicalRecordService;

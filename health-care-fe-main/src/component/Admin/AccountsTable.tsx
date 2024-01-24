@@ -36,6 +36,8 @@ import { useForm } from "antd/es/form/Form";
 import { Rule } from "antd/es/form";
 import dayjs from "dayjs";
 import { AuthContext } from "../../ContextProvider/AuthContext";
+import PatientAddForm from "../Patient/PatientAddForm";
+import AccountAddForm from "../SubEntities/AccountAddForm";
 
 const AccountsTable: React.FC = () => {
   const [searchText, setSearchText] = useState("");
@@ -323,7 +325,7 @@ const AccountsTable: React.FC = () => {
     values = { ...values, userId: selectedAccountId ?? 0 };
     console.log(values);
 
-    if(selectedAccount?.roleId === 2){
+    if (selectedAccount?.roleId === 2) {
       values.roleId = selectedAccount.roleId;
       values.categoryId = selectedAccount.categoryId;
     }
@@ -387,7 +389,22 @@ const AccountsTable: React.FC = () => {
   }, [isDoctor]);
 
   // Filter Search
+  const [open, setOpen] = useState<boolean>(false);
+  const handleCancel = () => {
+    setOpen(false);
+  };
+  const handleAddPatient = () => {
+    setOpen(true);
+  };
+  //-------------account
+  const [openAccount, setOpenAccount] = useState<boolean>(false);
 
+  const handleAddAccount = () => {
+    setOpenAccount(true);
+  };
+  const handleCancelAccount = () => {
+    setOpenAccount(false);
+  };
   return (
     <div
       style={{
@@ -400,6 +417,18 @@ const AccountsTable: React.FC = () => {
       }}
     >
       {/*===================== Accounts =====================*/}
+      <Row gutter={10}>
+        <Col>
+          <Button type="primary" onClick={handleAddPatient}>
+            Thêm mới bệnh nhân
+          </Button>
+        </Col>
+        <Col>
+          <Button type="primary" onClick={handleAddAccount}>
+            Thêm mới tài khoản
+          </Button>
+        </Col>
+      </Row>
       <h2>Nhân sự</h2>
       <Row>
         <Col span={24}></Col>
@@ -463,14 +492,16 @@ const AccountsTable: React.FC = () => {
           <Form.Item<UpdateAccountModel>
             label="Password"
             name="password"
-            rules={[{ required: true, message: 'Please input your password!' }]}
+            rules={[{ required: true, message: "Please input your password!" }]}
           >
             <Input type="password" placeholder="Password" />
           </Form.Item>
           <Form.Item<UpdateAccountModel>
             label="Confirm Password"
             name="confirmPassword"
-            rules={[{ required: true, message: 'Please confirm your password!' }]}
+            rules={[
+              { required: true, message: "Please confirm your password!" },
+            ]}
           >
             <Input type="password" placeholder="Password" />
           </Form.Item>
@@ -547,6 +578,53 @@ const AccountsTable: React.FC = () => {
             <Input placeholder="Địa chỉ" />
           </Form.Item>
         </Form>
+      </Modal>
+      {/*===================== Add patient modal =====================*/}
+      <Modal
+        title="Thêm mới bệnh nhân"
+        open={open}
+        onCancel={handleCancel}
+        maskClosable={false}
+        width="max-content"
+        footer={[
+          <Button key="back" onClick={handleCancel}>
+            Hủy
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            form="patientAddForm"
+            htmlType="submit"
+          >
+            Lưu
+          </Button>,
+        ]}
+      >
+        <PatientAddForm />
+      </Modal>
+
+      {/*===================== Add account modal =====================*/}
+      <Modal
+        title="Thêm mới tài khoản"
+        open={openAccount}
+        onCancel={handleCancelAccount}
+        maskClosable={false}
+        width="500px"
+        footer={[
+          <Button key="back" onClick={handleCancelAccount}>
+            Hủy
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            form="categoryAddForm"
+            htmlType="submit"
+          >
+            Lưu
+          </Button>,
+        ]}
+      >
+        <AccountAddForm />
       </Modal>
     </div>
   );

@@ -37,6 +37,8 @@ import { JWTTokenModel } from "../../Models/AuthModel";
 import { jwtDecode } from "jwt-decode";
 import { text } from "stream/consumers";
 import ExaminationService from "../../Services/ExaminationService";
+import TextArea from "antd/es/input/TextArea";
+import medicalRecordService from "../../Services/MedicalRecordService";
 
 const SupplyPrescriptionDetailForm = ({
   medicalRecordId,
@@ -70,6 +72,8 @@ const SupplyPrescriptionDetailForm = ({
     useState<boolean>(false);
 
   const [examResult, setExamResult] = useState<string>("");
+
+  const [diagnose, setDiagnose] = useState<string>("");
 
   const suppliesPrintColumns: ColumnsType<SelectedSuppliesResponseModel> = [
     {
@@ -136,8 +140,10 @@ const SupplyPrescriptionDetailForm = ({
       return;
     }
 
+    var diagnoseAdd: string = values["diagnose"];
     var supplyPresUpdate: SuppliesPresAddModel = {
       medicalRecordId: medicalRecordId,
+      diagnose: diagnoseAdd,
       supplyIds: selectedSupplies.filter((element) => element.quantity > 0),
     };
 
@@ -291,10 +297,8 @@ const SupplyPrescriptionDetailForm = ({
                   <Col span={6}>{element.sName}</Col>
                   <Col span={5}>{element.price.toLocaleString()} VND</Col>
                   <Col span={5}>
-                  <Form.Item name={`selected_supply_dose_${element.sId}`}>
-                      <Input
-                        placeholder="Liều dùng"
-                      />
+                    <Form.Item name={`selected_supply_dose_${element.sId}`}>
+                      <Input placeholder="Liều dùng" />
                     </Form.Item>
                   </Col>
                   <Col span={4}>
@@ -311,6 +315,9 @@ const SupplyPrescriptionDetailForm = ({
               </div>
             );
           })}
+          <Form.Item name="diagnose">
+            <TextArea rows={5} required placeholder="Thông tin thêm" />
+          </Form.Item>
         </div>
       ),
     },
@@ -329,13 +336,20 @@ const SupplyPrescriptionDetailForm = ({
     }
   };
 
-  const fetchExaminationResult = async () =>{
+  const fetchDiagnose = async () => {
+    var res = await medicalRecordService.getPreDiagnoseByMrId(medicalRecordId);
+    if (res !== undefined) {
+      setDiagnose(res);
+    }
+  };
+
+  const fetchExaminationResult = async () => {
     var res = await ExaminationService.getExamResultByMrId(medicalRecordId);
-    if(res !== undefined){
+    if (res !== undefined) {
       var diagnose = res.conclusion;
       setExamResult(diagnose);
     }
-  }
+  };
 
   const [name, setName] = useState<string>("");
 
@@ -349,6 +363,7 @@ const SupplyPrescriptionDetailForm = ({
       }
     }
 
+    fetchDiagnose();
     fetchPatient();
     fetchExaminationResult();
 
@@ -455,64 +470,16 @@ const SupplyPrescriptionDetailForm = ({
                   </b>
                 </Col>
               </Row>
-            </div>
+            </div><br/>
+            <Row gutter={[10, 10]}>
+              <Col span={24}><b>Thông tin thêm:</b></Col>
+              <Col span={24}>
+                <TextArea contentEditable = {false} rows={5} value={diagnose} />
+              </Col>
+            </Row>
             <Divider />
           </div>
-          {/* <div id="add-supplies-container">
-          <Row>
-            <Col>
-              <b>Chọn thêm thuốc</b>
-            </Col>
-          </Row>
           <br />
-          <Form.Item<SupplyPresSelectFormModel>
-            name="selectedSupplyTypes"
-            label="Chọn loại thuốc"
-          >
-            <Select
-              mode="multiple"
-              onChange={handleChangeSupplyType}
-              allowClear
-              //set supply type options
-              options={supplyTypeOptions}
-            />
-          </Form.Item>
-          <Row gutter={10}>
-            <Col span={10}>
-              <b>Tên thuốc</b>
-            </Col>
-            <Col span={6}>
-              <b>Giá tiền (VND)</b>
-            </Col>
-            <Col span={4}>
-              <b>Số lượng còn lại</b>
-            </Col>
-            <Col span={4}>
-              <b>Số lượng đã chọn</b>
-            </Col>
-          </Row>
-          <Divider dashed />
-          {availableSupplies.map((element) => {
-            return (
-              <div key={element.sId}>
-                <Row gutter={10}>
-                  <Col span={10}>{element.sName}</Col>
-                  <Col span={6}>{element.price.toLocaleString()} VND</Col>
-                  <Col span={4}>{element.unitInStock}</Col>
-                  <Col span={4}>
-                    <Form.Item name={`selected_supply_${element.sId}`}>
-                      <InputNumber
-                        min={0}
-                        max={element.unitInStock}
-                        placeholder="Quantity"
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </div>
-            );
-          })}
-          </div> */}
           {authenticated?.role !== Roles.Admin &&
           authenticated?.role !== Roles.Doctor ? (
             <></>
@@ -629,7 +596,9 @@ const SupplyPrescriptionDetailForm = ({
                 <Col span={4}>
                   <b>Chẩn đoán:</b>
                 </Col>
-                <Col span={20}><b>{examResult}</b></Col>
+                <Col span={20}>
+                  <b>{examResult}</b>
+                </Col>
               </Row>
               <br />
               <br />

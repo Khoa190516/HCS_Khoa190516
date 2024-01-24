@@ -30,6 +30,7 @@ export interface MedicalRecord extends PatientTableModel {
   bloodPressure: number;
   editDate: string;
   description: string;
+  examReason: string;
   isPaid: boolean;
   isCheckUp: boolean;
   selectedCategoryIds: number[];

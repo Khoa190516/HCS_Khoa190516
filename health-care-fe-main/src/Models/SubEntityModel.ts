@@ -106,6 +106,7 @@ export interface SupplyResponseModel {
 
 export interface SuppliesPresAddModel {
   medicalRecordId: number
+  diagnose: string
   supplyIds: SupplyIdPreAddModel[]
 }
 

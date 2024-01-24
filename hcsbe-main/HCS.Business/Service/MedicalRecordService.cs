@@ -27,6 +27,8 @@ public interface IMedicalRecordService
     Task<ApiResponse> GetReCheckUpMedicalRecordByPreviosMedicalRecordId(int prevMrId);
     Task<ApiResponse> GetListMrUnCheckByPatientId(int patientId, int pageIndex, int pageSize, int userId);
     Task<ApiResponse> GetListMrUnPaidByPatientId(int patientId, int pageIndex, int pageSize, int userId);
+    Task<ApiResponse> GetPrescriptonDiagnoseByMrId(int mrId);
+    Task<ApiResponse> GetListNextMrIdsByMrId(int mrId);
 }
 public class MedicalRecordService : IMedicalRecordService
 {
@@ -716,5 +718,22 @@ public class MedicalRecordService : IMedicalRecordService
             }
         }
         return filteredListMr;
+    }
+
+    public async Task<ApiResponse> GetPrescriptonDiagnoseByMrId(int mrId)
+    {
+        var mr = await _unitOfWork.MedicalRecordRepo.GetPrescriptionDiagnoseByMrId(mrId);
+        if (mr is null) return new ApiResponse().SetNotFound("Mr not found");
+        return new ApiResponse().SetOk(mr.ExaminationResult?.Prescription?.Diagnose);
+    }
+
+    public async Task<ApiResponse> GetListNextMrIdsByMrId(int mrId)
+    {
+        var response = await _unitOfWork.MedicalRecordRepo.GetListNextMrIds(mrId);
+        if(response is not null)
+        {
+            return new ApiResponse().SetOk(response);
+        }
+        return new ApiResponse().SetBadRequest("Id not found");
     }
 }

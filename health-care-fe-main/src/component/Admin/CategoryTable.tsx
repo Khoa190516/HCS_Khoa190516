@@ -1,14 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Button,
-  Space,
-  Table,
-  message,
-  Modal,
-  Form,
-  Row,
-  Col,
-} from "antd";
+import { Button, Space, Table, message, Modal, Form, Row, Col } from "antd";
 import { ColumnType, ColumnsType } from "antd/es/table";
 import Input, { InputRef } from "antd/es/input/Input";
 import {
@@ -20,12 +11,13 @@ import ServiceTypeAddForm from "../SubEntities/ServiceTypeAddForm";
 import { FilterConfirmProps } from "antd/es/table/interface";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
+import CategoryAddForm from "../SubEntities/CategoryAddForm";
 
 const CategoryTable: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef<InputRef>(null);
-  type DataIndex = keyof CategoryResponseModel
+  type DataIndex = keyof CategoryResponseModel;
   const handleSearch = (
     selectedKeys: string[],
     confirm: (param?: FilterConfirmProps) => void,
@@ -43,9 +35,7 @@ const CategoryTable: React.FC = () => {
 
   const getColumnSearchProps = (
     dataIndex: DataIndex
-  ): ColumnType<
-    CategoryResponseModel
-  > => ({
+  ): ColumnType<CategoryResponseModel> => ({
     filterDropdown: ({
       setSelectedKeys,
       selectedKeys,
@@ -225,7 +215,7 @@ const CategoryTable: React.FC = () => {
           </Button>
           <Button
             key={`removeC_${record.categoryId}`}
-            danger = {record.isDeleted !== true ? true : false}
+            danger={record.isDeleted !== true ? true : false}
             type="primary"
             onClick={() => handleDeleteCategory(record.categoryId)}
           >
@@ -290,6 +280,16 @@ const CategoryTable: React.FC = () => {
     fetchData();
   }, []);
 
+  const [openCategory, setOpenCategory] = useState<boolean>(false);
+
+  const handleAddCategory = () => {
+    setOpenCategory(true);
+  };
+
+  const handleCancelCategory = () => {
+    setOpenCategory(false);
+  };
+
   return (
     <div
       style={{
@@ -302,6 +302,13 @@ const CategoryTable: React.FC = () => {
       }}
     >
       {/*===================== Category =====================*/}
+      <Row>
+        <Col>
+          <Button type="primary" onClick={handleAddCategory}>
+            Thêm mới khoa khám
+          </Button>
+        </Col>
+      </Row>
       <h2>Khoa khám</h2>
       <Row>
         <Col span={24}></Col>
@@ -384,6 +391,29 @@ const CategoryTable: React.FC = () => {
         ]}
       >
         <ServiceTypeAddForm id={selectedCategoryId} />
+      </Modal>
+      {/*=============== Add category modal ========================*/}
+      <Modal
+        title="Thêm mới khoa khám"
+        open={openCategory}
+        onCancel={handleCancelCategory}
+        maskClosable={false}
+        width="500px"
+        footer={[
+          <Button key="back" onClick={handleCancelCategory}>
+            Hủy
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            form="categoryAddForm"
+            htmlType="submit"
+          >
+            Lưu
+          </Button>,
+        ]}
+      >
+        <CategoryAddForm />
       </Modal>
     </div>
   );

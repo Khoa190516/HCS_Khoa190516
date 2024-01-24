@@ -173,5 +173,23 @@ namespace HCS.API.Controllers
 
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+
+        [Authorize(Roles = "Admin, Nurse, Doctor, Cashier")]
+        [HttpGet("prescription-diagnose/id/{id:int}")]
+        public async Task<IActionResult> GetPreDiagnose(int id)
+        {
+            var result = await _medicalRecordService.GetPrescriptonDiagnoseByMrId(id);
+
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [Authorize(Roles = "Admin, Nurse, Doctor, Cashier")]
+        [HttpGet("next-mrs/id/{id:int}")]
+        public async Task<IActionResult> GetNextMrIds(int id)
+        {
+            var result = await _medicalRecordService.GetListNextMrIdsByMrId(id);
+
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
 }

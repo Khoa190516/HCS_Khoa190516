@@ -47,6 +47,7 @@ public class SupplyResponseModel
 public class SupplyPrescriptionsAddModel
 {
     public int MedicalRecordId { get; set; }
+    public string Diagnose { get; set; } = string.Empty;
     public List<SupplyPrescriptionAddModel> SupplyIds { get; set; } = new List<SupplyPrescriptionAddModel>();
 }
 

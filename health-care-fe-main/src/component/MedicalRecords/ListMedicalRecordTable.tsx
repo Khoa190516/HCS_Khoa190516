@@ -10,7 +10,10 @@ import {
   InputRef,
 } from "antd";
 import Table, { ColumnType, ColumnsType } from "antd/es/table";
-import { MedicalRecordTableModel } from "../../Models/MedicalRecordModel";
+import {
+  MedicalRecordAddModel,
+  MedicalRecordTableModel,
+} from "../../Models/MedicalRecordModel";
 import { useContext, useEffect, useRef, useState } from "react";
 import MedicalRecordDetailForm from "./MedicalRecordDetailForm";
 import { AuthContext } from "../../ContextProvider/AuthContext";
@@ -30,6 +33,8 @@ import {
 import { SearchOutlined } from "@ant-design/icons";
 import { FilterConfirmProps } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
+import { defaultMrOption } from "../../Commons/Global";
+import subService from "../../Services/SubService";
 
 const ListMedicalRecordTable = () => {
   //const { id } = useParams<{ id: string }>();
@@ -262,6 +267,38 @@ const ListMedicalRecordTable = () => {
     setSelectedMrId(mrId);
   };
 
+  const handleCreateReCheckUpMr = async (mrId: number) => {
+    var mrDetail = await medicalRecordService.getMedicalRecordDetailById(mrId);
+    if (mrDetail === undefined) {
+      message.error("Lỗi khi lấy thông tin hồ sơ", 2);
+      return;
+    } else {
+      var doctor = await subService.getLeastAssignedDoctorByCategoryId(mrId);
+      if (doctor !== undefined) {
+        var mrAddModel: MedicalRecordAddModel = {
+          examReason: "Tái khám",
+          categoryIds: [defaultMrOption.DEFAULT_CATEGORY_ID],
+          doctorIds: [doctor.userId],
+          patientId: mrDetail.patientId,
+          previousMedicalRecordId: mrId,
+        };
+
+        var response = await medicalRecordService.addMedicalRecord(mrAddModel);
+        if (response === 200 || response === 201) {
+          message
+            .success("Tạo hồ sơ tái khám thành công", 2)
+            .then(() => window.location.reload());
+        } else {
+          message.error("Lỗi khi tạo hồ sơ tái khám", 2);
+          return;
+        }
+      } else {
+        message.error("Không tìm thấy bác sĩ phù hợp", 2);
+        return;
+      }
+    }
+  };
+
   const columns: ColumnsType<MedicalRecordTableModel> = [
     {
       title: "Mã hồ sơ",
@@ -298,14 +335,14 @@ const ListMedicalRecordTable = () => {
       render: (record) => (
         <a>{record === true ? "Đã thanh toán" : "Chưa thanh toán"}</a>
       ),
-      sorter: (a, b) => +(a.isPaid) - +(b.isPaid),
+      sorter: (a, b) => +a.isPaid - +b.isPaid,
     },
     {
       title: "Khám",
       dataIndex: "isCheckUp",
       key: "isCheckUp",
       render: (record) => <a>{record === true ? "Đã khám" : "Chưa khám"}</a>,
-      sorter: (a, b) => +(a.isCheckUp) - +(b.isCheckUp),
+      sorter: (a, b) => +a.isCheckUp - +b.isCheckUp,
     },
     {
       title: "",
@@ -319,7 +356,7 @@ const ListMedicalRecordTable = () => {
           }}
         >
           <Row gutter={[5, 5]}>
-            <Col>
+            <Col span={24}>
               <Button
                 key="view"
                 type="primary"
@@ -333,6 +370,19 @@ const ListMedicalRecordTable = () => {
                 Xem hồ sơ
               </Button>
             </Col>
+            {record.isCheckUp === true && authenticated?.role !== Roles.Doctor && authenticated?.role !== Roles.Cashier && (
+              <Col span={24}>
+                <Button
+                  key="re-check-up-btn"
+                  type="primary"
+                  onClick={() =>
+                    handleCreateReCheckUpMr(record.medicalRecordId)
+                  }
+                >
+                  Tạo hồ sơ tái khám
+                </Button>
+              </Col>
+            )}
           </Row>
         </div>
       ),
@@ -454,6 +504,13 @@ const ListMedicalRecordTable = () => {
         footer={[
           <Button key="back" onClick={handleCancel}>
             Hủy
+          </Button>,
+          <Button
+            key="checkout"
+            type="primary"
+            onClick={() => handleSupplyPres(selectedMrId)}
+          >
+            Đơn thuốc
           </Button>,
           // authenticated?.role !== Roles.Admin &&
           // authenticated?.role !== Roles.Doctor ? (
