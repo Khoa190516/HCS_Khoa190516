@@ -19,5 +19,7 @@ namespace HCS.Domain.Models
         public int SupplyId { get; set; }
 
         public Supply Supply { get; set; } = null!;
+
+        public string Dose { get; set; } = string.Empty;
     }
 }

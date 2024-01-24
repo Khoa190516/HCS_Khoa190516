@@ -54,6 +54,7 @@ public class SupplyPrescriptionAddModel
 {
     public int SupplyId { get; set; }
     public int Quantity { get; set; }
+    public string Dose { get; set; } = string.Empty;
 }
 
 public class SupplyPrescriptionResponseModel
@@ -63,4 +64,5 @@ public class SupplyPrescriptionResponseModel
     public int Quantity { get; set; }
     public double Price { get; set; }
     public string Uses { get; set; } = string.Empty;
+    public string Dose { get; set; } = string.Empty;
 }

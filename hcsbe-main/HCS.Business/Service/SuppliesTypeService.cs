@@ -160,6 +160,7 @@ public class SuppliesTypeService : ISuppliesTypeService
             {
                 SupplyId = supplyPres.SupplyId,
                 Quantity = supplyPres.Quantity,
+                Dose = supplyPres.Dose,
             };
             supplyPresEntity.Add(supplyPreEntity);
         }
@@ -185,7 +186,8 @@ public class SuppliesTypeService : ISuppliesTypeService
             SupplyName = x.Supply.SName,
             Quantity = x.Quantity,
             Price = x.Supply.Price,
-            Uses = x.Supply.Uses
+            Uses = x.Supply.Uses,
+            Dose = x.Dose
         }).ToList();
         return new ApiResponse().SetOk(supplyPresResponse);
     }

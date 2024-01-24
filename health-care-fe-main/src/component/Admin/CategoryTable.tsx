@@ -225,11 +225,11 @@ const CategoryTable: React.FC = () => {
           </Button>
           <Button
             key={`removeC_${record.categoryId}`}
-            danger
+            danger = {record.isDeleted !== true ? true : false}
             type="primary"
             onClick={() => handleDeleteCategory(record.categoryId)}
           >
-            Vô hiệu hóa
+            {record.isDeleted !== true ? <>Vô hiệu hóa</> : <>Kích hoạt</>}
           </Button>
           <Button
             key={`addTypeC_${record.categoryId}`}
@@ -250,7 +250,8 @@ const CategoryTable: React.FC = () => {
       message.error("Get Categories Failed", 2);
     } else {
       console.log(response);
-      setCates(response.filter(c => c.isDeleted === false));
+      //setCates(response.filter(c => c.isDeleted === false));
+      setCates(response);
       return response;
     }
   };
@@ -259,8 +260,8 @@ const CategoryTable: React.FC = () => {
   //show confirm dialog before delete
   const handleDeleteCategory = (id: number) => {
     Modal.confirm({
-      title: "Xác nhận Vô hiệu hóa",
-      content: "Bạn có chắc chắn muốn Vô hiệu hóa?",
+      title: "Xác nhận thay đổi",
+      content: "Bạn có chắc chắn muốn thay đổi?",
       onOk: () => {
         removeCategory(id);
       },
@@ -273,11 +274,11 @@ const CategoryTable: React.FC = () => {
   const removeCategory = async (id: number) => {
     var response = await categoryService.deleteCategories(id);
     if (response === 200) {
-      message.success("Vô hiệu hóa thành công", 2).then(() => {
+      message.success("Thành công", 2).then(() => {
         window.location.reload();
       });
     } else {
-      message.error("Vô hiệu hóa thất bại", 2);
+      message.error("Thất bại", 2);
     }
   };
   //=============================

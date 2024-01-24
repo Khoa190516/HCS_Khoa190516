@@ -24,7 +24,7 @@ namespace HCS.DataAccess.Repository
             var user = await query
                 .Include(u => u.Contact)
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync( u => u.Email.Equals(email));
+                .FirstOrDefaultAsync(u => u.Email.Equals(email));
 
             if (user != null)
             {
@@ -33,14 +33,19 @@ namespace HCS.DataAccess.Repository
                     Email = user.Email,
                     RoleId = user.RoleId,
                     UserId = user.UserId,
-                    IsDeleted = user.IsDeleted
+                    IsDeleted = user.IsDeleted,
+                    CategoryId = user.CategoryId
                 };
 
-                profile.UserName = user.Contact != null ? user.Contact.Name : string.Empty;  
+                profile.UserName = user.Contact != null ? user.Contact.Name : string.Empty;
 
-                if(user.Role != null)
+                if (user.Role != null)
                 {
                     profile.RoleName = user.Role.RoleName;
+                    profile.Address = user.Contact?.Address ?? string.Empty;
+                    profile.Phone = user.Contact?.Phone ?? string.Empty;
+                    profile.Dob = user.Contact?.Dob ?? DateTime.Now;
+                    profile.Gender = user.Contact?.Gender ?? true;
                 }
                 return profile;
             }
@@ -56,6 +61,14 @@ namespace HCS.DataAccess.Repository
                 .Include(x => x.MedicalRecordDoctors)
                 .Include(x => x.Role)
                 .ToListAsync();
+        }
+
+        public async Task<User?> GetUserWithContact(int userId)
+        {
+            return await _context.Users
+                .Where(x => x.UserId == userId)
+                .Include(x => x.Contact)
+                .FirstOrDefaultAsync();
         }
     }
 }

@@ -101,6 +101,12 @@ const SupplyPrescriptionDetailForm = ({
       dataIndex: "quantity",
       render: (text, record, index) => <span>{text} Viên</span>,
     },
+    {
+      title: "Liều dùng",
+      key: "dose",
+      dataIndex: "dose",
+      render: (text, record, index) => <span>{text}</span>,
+    },
   ];
 
   const onFinish = async (values: any) => {
@@ -112,10 +118,14 @@ const SupplyPrescriptionDetailForm = ({
     availableSupplies.forEach((element) => {
       var nameSelectedSupply = `selected_supply_${element.sId}`;
       var quantity = values[nameSelectedSupply];
+      var doseName = `selected_supply_dose_${element.sId}`;
+      var dose = values[doseName];
+
       if (quantity !== undefined) {
         var newSupplyId: SupplyIdPreAddModel = {
           supplyId: element.sId,
           quantity: quantity,
+          dose: dose,
         };
         selectedSupplies.push(newSupplyId);
       }
@@ -260,15 +270,15 @@ const SupplyPrescriptionDetailForm = ({
             />
           </Form.Item>
           <Row gutter={10}>
-            <Col span={10}>
+            <Col span={6}>
               <b>Tên thuốc</b>
             </Col>
-            <Col span={6}>
+            <Col span={5}>
               <b>Giá tiền (VND)</b>
             </Col>
-            {/* <Col span={4}>
-              <b>Số lượng còn lại</b>
-            </Col> */}
+            <Col span={5}>
+              <b>Liều dùng</b>
+            </Col>
             <Col span={4}>
               <b>Số lượng đã chọn</b>
             </Col>
@@ -278,16 +288,22 @@ const SupplyPrescriptionDetailForm = ({
             return (
               <div key={element.sId}>
                 <Row gutter={10}>
-                  <Col span={10}>{element.sName}</Col>
-                  <Col span={6}>{element.price.toLocaleString()} VND</Col>
-                  {/* <Col span={4}>{element.unitInStock}</Col> */}
+                  <Col span={6}>{element.sName}</Col>
+                  <Col span={5}>{element.price.toLocaleString()} VND</Col>
+                  <Col span={5}>
+                  <Form.Item name={`selected_supply_dose_${element.sId}`}>
+                      <Input
+                        placeholder="Liều dùng"
+                      />
+                    </Form.Item>
+                  </Col>
                   <Col span={4}>
                     <Form.Item name={`selected_supply_${element.sId}`}>
                       <InputNumber
                         defaultValue={0}
                         min={0}
                         max={element.unitInStock}
-                        placeholder="Quantity"
+                        placeholder="Số lượng"
                       />
                     </Form.Item>
                   </Col>
@@ -387,11 +403,14 @@ const SupplyPrescriptionDetailForm = ({
               </Row>
               <Divider />
               <Row gutter={10}>
-                <Col span={12}>
+                <Col span={6}>
                   <b>Tên thuốc</b>
                 </Col>
                 <Col span={4}>
                   <b>Số lượng</b>
+                </Col>
+                <Col span={6}>
+                  <b>Liều dùng</b>
                 </Col>
                 <Col span={4}>
                   <b>Giá tiền (VND)</b>
@@ -405,8 +424,9 @@ const SupplyPrescriptionDetailForm = ({
                 return (
                   <div key={element.supplyId}>
                     <Row gutter={10}>
-                      <Col span={12}>{element.supplyName}</Col>
+                      <Col span={6}>{element.supplyName}</Col>
                       <Col span={4}>{element.quantity}</Col>
+                      <Col span={6}>{element.dose}</Col>
                       <Col span={4}>{element.price.toLocaleString()} VND</Col>
                       <Col span={4}>
                         {(element.price * element.quantity).toLocaleString()}{" "}

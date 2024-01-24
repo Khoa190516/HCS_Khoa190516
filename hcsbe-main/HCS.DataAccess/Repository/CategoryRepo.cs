@@ -33,7 +33,7 @@ public class CategoryRepo : GenericRepo<Category>, ICategoryRepo
         }
         else
         {
-            category.IsDeleted = true;
+            category.IsDeleted = !category.IsDeleted;
             return true;
         }
     }

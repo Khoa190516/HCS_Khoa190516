@@ -12,6 +12,7 @@ namespace HCS.DataAccess.IRepository
     {
         public Task<UserJWTModel?> GetProfile(string email);
         public Task<List<User>> GetAllDoctorByCategoryIdAsync(int categoryId);
+        Task<User?> GetUserWithContact(int userId);
 
     }
 }

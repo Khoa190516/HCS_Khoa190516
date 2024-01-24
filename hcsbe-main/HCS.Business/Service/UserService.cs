@@ -122,12 +122,12 @@ namespace HCS.Business.Service
                 CategoryId = registerUser.CategoryId < 1 ? null : registerUser.CategoryId,
                 Contact = new Contact()
                 {
-                    Address = string.Empty,
-                    Dob = DateTime.Now,
-                    Gender = true,
+                    Address = registerUser.Address,
+                    Dob = registerUser.Dob,
+                    Gender = registerUser.Gender,
                     Img = string.Empty,
-                    Name = registerUser.Email.Split('@')[0],
-                    Phone = string.Empty,
+                    Name = registerUser.Name,
+                    Phone = registerUser.Phone,
                 }
             };
 
@@ -154,11 +154,19 @@ namespace HCS.Business.Service
                 return response.SetBadRequest(message: "Confirm Password does not matched");
             }
 
-            var user = await _unitOfWork.UserRepo.GetAsync(x => x.UserId == account.UserId);
+            //var user = await _unitOfWork.UserRepo.GetAsync(x => x.UserId == account.UserId);
+            var user = await _unitOfWork.UserRepo.GetUserWithContact(account.UserId);
             if (user == null) return response.SetNotFound();
             user.Password = GetMD5Hash(account.Password);
             user.RoleId = account.RoleId;
             user.CategoryId = account.RoleId == (int)UserRole.Doctor ? account.CategoryId : null;
+            if(user.Contact is not null)
+            {
+                user.Contact.Address = account.Address;
+                user.Contact.Name = account.Name;
+                user.Contact.Phone = account.Phone;
+                user.Contact.Dob = account.Dob;
+            }
             await _unitOfWork.SaveChangeAsync();
             return response.SetOk("Updated");
         }
@@ -170,7 +178,7 @@ namespace HCS.Business.Service
             var user = await _unitOfWork.UserRepo.GetAsync(x => x.UserId == userId);
             if(user != null)
             {
-                user.Status = false;
+                user.IsDeleted = !user.IsDeleted;
                 await _unitOfWork.SaveChangeAsync();
                 return response.SetOk("deleted");
             }
@@ -305,7 +313,8 @@ namespace HCS.Business.Service
 
         public async Task<ApiResponse> GetAllAccounts()
         {
-            var accounts = await _unitOfWork.UserRepo.GetAllAsync(x => x.Status == true);
+            //var accounts = await _unitOfWork.UserRepo.GetAllAsync(x => x.Status == true);
+            var accounts = await _unitOfWork.UserRepo.GetAllAsync(null);
 
             if (accounts is null)
             {

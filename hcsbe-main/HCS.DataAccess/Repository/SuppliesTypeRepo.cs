@@ -27,7 +27,7 @@ public class SuppliesTypeRepo : GenericRepo<SuppliesType>, ISuppliesTypeRepo
         }
         else
         {
-            entity.IsDeleted = true;
+            entity.IsDeleted = !entity.IsDeleted;
             return true;
         }
     }
@@ -89,6 +89,7 @@ public class SuppliesTypeRepo : GenericRepo<SuppliesType>, ISuppliesTypeRepo
                         if(supplyPrescription is not null)
                         {
                             supplyPrescription.Quantity += supPre.Quantity;
+                            supplyPrescription.Dose = supPre.Dose;
                         }
                     }
                     else

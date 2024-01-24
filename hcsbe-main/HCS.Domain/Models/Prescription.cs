@@ -17,5 +17,7 @@ namespace HCS.Domain.Models
         public ExaminationResult ExaminationResult { get; set; } = null!;
 
         public ICollection<SuppliesPrescription>? SuppliesPrescriptions { get; set; }
+
+        public bool IsPaid { get; set; } = false;
     }
 }
