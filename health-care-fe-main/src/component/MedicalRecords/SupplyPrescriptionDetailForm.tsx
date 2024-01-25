@@ -15,6 +15,7 @@ import { ExaminationProps } from "../../Models/MedicalRecordModel";
 import { useContext, useEffect, useState } from "react";
 import {
   ExamDetail,
+  PrescriptionDiagnosIsPaidModel,
   SelectedSuppliesResponseModel,
   SuppliesPresAddModel,
   SupplyIdPreAddModel,
@@ -117,6 +118,11 @@ const SupplyPrescriptionDetailForm = ({
     console.log(availableSupplies);
     console.log(values);
 
+    if(authenticated?.role !== Roles.Doctor){
+      message.error("Bạn không có quyền chỉnh sửa đơn thuốc", 2);
+      return;
+    }
+
     var selectedSupplies: SupplyIdPreAddModel[] = [];
 
     availableSupplies.forEach((element) => {
@@ -136,7 +142,7 @@ const SupplyPrescriptionDetailForm = ({
     });
 
     if (selectedSupplies.length === 0) {
-      message.error("Please Select At Least One Supply", 2);
+      message.info("Hãy chọn thuốc cần thêm", 2);
       return;
     }
 
@@ -144,7 +150,8 @@ const SupplyPrescriptionDetailForm = ({
     var supplyPresUpdate: SuppliesPresAddModel = {
       medicalRecordId: medicalRecordId,
       diagnose: diagnoseAdd,
-      supplyIds: selectedSupplies.filter((element) => element.quantity > 0),
+      // supplyIds: selectedSupplies.filter((element) => element.quantity > 0),
+      supplyIds: selectedSupplies,
     };
 
     if (medicalRecordId === undefined) {
@@ -305,8 +312,6 @@ const SupplyPrescriptionDetailForm = ({
                     <Form.Item name={`selected_supply_${element.sId}`}>
                       <InputNumber
                         defaultValue={0}
-                        min={0}
-                        max={element.unitInStock}
                         placeholder="Số lượng"
                       />
                     </Form.Item>
@@ -316,7 +321,7 @@ const SupplyPrescriptionDetailForm = ({
             );
           })}
           <Form.Item name="diagnose">
-            <TextArea rows={5} required placeholder="Thông tin thêm" />
+            <TextArea rows={5} required placeholder="Thông tin thêm"/>
           </Form.Item>
         </div>
       ),
@@ -336,10 +341,17 @@ const SupplyPrescriptionDetailForm = ({
     }
   };
 
+  const [isPresPaid, setIsPresPaid] = useState<boolean>(false);
+
   const fetchDiagnose = async () => {
-    var res = await medicalRecordService.getPreDiagnoseByMrId(medicalRecordId);
+    var res: PrescriptionDiagnosIsPaidModel | undefined =
+      await medicalRecordService.getPreDiagnoseByMrId(medicalRecordId);
     if (res !== undefined) {
-      setDiagnose(res);
+      setDiagnose(res.diagnose);
+      setIsPresPaid(res.isPaid);
+      supplyPresForm.setFieldsValue({
+        diagnose: res.diagnose,
+      })
     }
   };
 
@@ -399,6 +411,17 @@ const SupplyPrescriptionDetailForm = ({
                   >
                     <Input disabled />
                   </Form.Item>
+                </Col>
+                <Col span={10} />
+                <Col span={6} style={{textAlign:"center"}}>
+                  Trạng thái đơn thuốc
+                  <div>
+                    {isPresPaid === true ? (
+                      <b>Đã thanh toán</b>
+                    ) : (
+                      <b>Chưa thanh toán</b>
+                    )}
+                  </div>
                 </Col>
               </Row>
               <Row gutter={10}></Row>
@@ -470,11 +493,14 @@ const SupplyPrescriptionDetailForm = ({
                   </b>
                 </Col>
               </Row>
-            </div><br/>
+            </div>
+            <br />
             <Row gutter={[10, 10]}>
-              <Col span={24}><b>Thông tin thêm:</b></Col>
               <Col span={24}>
-                <TextArea contentEditable = {false} rows={5} value={diagnose} />
+                <b>Thông tin thêm:</b>
+              </Col>
+              <Col span={24}>
+                <TextArea contentEditable={false} rows={5} value={diagnose} />
               </Col>
             </Row>
             <Divider />

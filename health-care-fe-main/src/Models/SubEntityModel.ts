@@ -168,3 +168,8 @@ export interface DoctorCategoryByServiceModel{
   categoryName: string
   doctorName: string
 }
+
+export interface PrescriptionDiagnosIsPaidModel{
+  diagnose: string
+  isPaid:boolean
+}

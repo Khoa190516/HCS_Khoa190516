@@ -82,6 +82,7 @@ public class SuppliesTypeRepo : GenericRepo<SuppliesType>, ISuppliesTypeRepo
                 //    }
                 //}
                 mr.ExaminationResult.Prescription.Diagnose = diagnose;
+                mr.ExaminationResult.Prescription.SuppliesPrescriptions = mr.ExaminationResult.Prescription.SuppliesPrescriptions.Where(x => x.Quantity > 0).ToList();
                 return true;
            }
             else
@@ -104,6 +105,8 @@ public class SuppliesTypeRepo : GenericRepo<SuppliesType>, ISuppliesTypeRepo
                         mr.ExaminationResult.Prescription.SuppliesPrescriptions.Add(supPre);
                     }
                 }
+
+                mr.ExaminationResult.Prescription.SuppliesPrescriptions = mr.ExaminationResult.Prescription.SuppliesPrescriptions.Where(x => x.Quantity > 0).ToList();
                 //update stock of supplies
                 //foreach (var supPre in supplyPrescriptions)
                 //{

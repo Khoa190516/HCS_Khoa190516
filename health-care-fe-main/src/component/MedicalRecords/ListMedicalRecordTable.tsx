@@ -35,6 +35,7 @@ import { FilterConfirmProps } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
 import { defaultMrOption } from "../../Commons/Global";
 import subService from "../../Services/SubService";
+import { PrescriptionDiagnosIsPaidModel } from "../../Models/SubEntityModel";
 
 const ListMedicalRecordTable = () => {
   //const { id } = useParams<{ id: string }>();
@@ -370,19 +371,21 @@ const ListMedicalRecordTable = () => {
                 Xem hồ sơ
               </Button>
             </Col>
-            {record.isCheckUp === true && authenticated?.role !== Roles.Doctor && authenticated?.role !== Roles.Cashier && (
-              <Col span={24}>
-                <Button
-                  key="re-check-up-btn"
-                  type="primary"
-                  onClick={() =>
-                    handleCreateReCheckUpMr(record.medicalRecordId)
-                  }
-                >
-                  Tạo hồ sơ tái khám
-                </Button>
-              </Col>
-            )}
+            {record.isCheckUp === true &&
+              authenticated?.role !== Roles.Doctor &&
+              authenticated?.role !== Roles.Cashier && (
+                <Col span={24}>
+                  <Button
+                    key="re-check-up-btn"
+                    type="primary"
+                    onClick={() =>
+                      handleCreateReCheckUpMr(record.medicalRecordId)
+                    }
+                  >
+                    Tạo hồ sơ tái khám
+                  </Button>
+                </Col>
+              )}
           </Row>
         </div>
       ),
@@ -472,6 +475,37 @@ const ListMedicalRecordTable = () => {
 
   const handleTableChange = (pagination: any) => {
     setPagination(pagination);
+  };
+
+  const handlePayPrescription = async () => {
+    if (selectedMrId === undefined) {
+      message.error("Lỗi khi lấy mã hóa đơn", 2);
+      return;
+    }
+
+    var res: PrescriptionDiagnosIsPaidModel | undefined =
+      await medicalRecordService.getPreDiagnoseByMrId(selectedMrId);
+    if (res !== undefined) {
+      if (res.isPaid === true) {
+        message.info("Đơn thuốc đã được thanh toán", 2);
+        return;
+      } else {
+        var statusCode = await medicalRecordService.payPrescriptionByMrId(
+          selectedMrId
+        );
+        if (statusCode === 200) {
+          message.success("Thanh toán đơn thuốc thành công", 2).then(() => {
+            window.location.reload();
+          });
+        } else {
+          message.error("Đơn thuốc trống", 2);
+          return;
+        }
+      }
+    } else {
+      message.error("Hồ sơ chưa có đơn thuốc", 2);
+      return;
+    }
   };
 
   useEffect(() => {
@@ -599,14 +633,22 @@ const ListMedicalRecordTable = () => {
           <Button key="back" onClick={handleCancelSupplyPres}>
             Hủy
           </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            form="supplyPresDetailForm"
-            htmlType="submit"
-          >
-            Lưu
-          </Button>,
+          ,
+          authenticated?.role === Roles.Cashier && (
+            <Button type="primary" onClick={handlePayPrescription}>
+              Thanh toán
+            </Button>
+          ),
+          authenticated?.role === Roles.Doctor && (
+            <Button
+              key="submit"
+              type="primary"
+              form="supplyPresDetailForm"
+              htmlType="submit"
+            >
+              Lưu
+            </Button>
+          ),
         ]}
       />
     </div>

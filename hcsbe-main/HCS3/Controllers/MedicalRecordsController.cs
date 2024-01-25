@@ -191,5 +191,14 @@ namespace HCS.API.Controllers
 
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+
+        [Authorize(Roles = "Admin, Cashier")]
+        [HttpPost("pay-prescription/id/{id:int}")]
+        public async Task<IActionResult> PayPrescriptionByMrId(int id)
+        {
+            var result = await _medicalRecordService.PayPrescriptionByMrId(id);
+
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
 }

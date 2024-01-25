@@ -10,6 +10,7 @@ import {
   MedicalRecordUpdateModel,
 } from "../Models/MedicalRecordModel";
 import { ApiResponseModel } from "../Models/PatientModel";
+import { PrescriptionDiagnosIsPaidModel } from "../Models/SubEntityModel";
 
 const addMedicalRecord = async (params: MedicalRecordAddModel) => {
   try {
@@ -240,7 +241,7 @@ const getReCheckUpByPrevMrId = async (
 
 const getPreDiagnoseByMrId = async (
   id: number
-): Promise<string | undefined> => {
+): Promise<PrescriptionDiagnosIsPaidModel | undefined> => {
   try {
     const token = localStorage.getItem(TOKEN);
     if (token !== null) {
@@ -252,7 +253,7 @@ const getPreDiagnoseByMrId = async (
           url: url,
           authorization: `Bearer ${token}`,
         });
-        return response.data.result as string;
+        return response.data.result as PrescriptionDiagnosIsPaidModel;
       }
     }
     return undefined;
@@ -286,6 +287,28 @@ const getNextMrIdsByMrId = async (
   }
 };
 
+const payPrescriptionByMrId = async (id: number): Promise<number | undefined> => {
+  try {
+    const token = localStorage.getItem(TOKEN);
+    if (token !== null) {
+      var uToken: JWTTokenModel = jwtDecode(token);
+
+      if (uToken !== null) {
+        var url = `${apiLinks.medicalRecords.postPayPrescriptionByMrId}${id}`;
+        const response = await httpClient.post({
+          url: url,
+          authorization: `Bearer ${token}`,
+        });
+        return response.status as number;
+      }
+    }
+    return undefined;
+  } catch (e) {
+    console.log(e);
+    return undefined;
+  }
+};
+
 const medicalRecordService = {
   addMedicalRecord: addMedicalRecord,
   getMedicalRecordsByPatientId: getMedicalRecordsByPatientId,
@@ -298,6 +321,7 @@ const medicalRecordService = {
   getMedicalRecordsUnPaidByPatientId: getMedicalRecordsUnPaidByPatientId,
   getPreDiagnoseByMrId: getPreDiagnoseByMrId,
   getNextMrIdsByMrId: getNextMrIdsByMrId,
+  payPrescriptionByMrId: payPrescriptionByMrId,
 };
 
 export default medicalRecordService;

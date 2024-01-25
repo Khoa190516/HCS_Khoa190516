@@ -29,6 +29,8 @@ public interface IMedicalRecordService
     Task<ApiResponse> GetListMrUnPaidByPatientId(int patientId, int pageIndex, int pageSize, int userId);
     Task<ApiResponse> GetPrescriptonDiagnoseByMrId(int mrId);
     Task<ApiResponse> GetListNextMrIdsByMrId(int mrId);
+    Task<ApiResponse> PayPrescriptionByMrId(int mrId);
+
 }
 public class MedicalRecordService : IMedicalRecordService
 {
@@ -724,7 +726,12 @@ public class MedicalRecordService : IMedicalRecordService
     {
         var mr = await _unitOfWork.MedicalRecordRepo.GetPrescriptionDiagnoseByMrId(mrId);
         if (mr is null) return new ApiResponse().SetNotFound("Mr not found");
-        return new ApiResponse().SetOk(mr.ExaminationResult?.Prescription?.Diagnose);
+        PresciptionStatusPaidModel result = new()
+        {
+            Diagnose = mr?.ExaminationResult?.Prescription?.Diagnose ?? string.Empty,
+            IsPaid = mr?.ExaminationResult?.Prescription?.IsPaid ?? false
+        };
+        return new ApiResponse().SetOk(result);
     }
 
     public async Task<ApiResponse> GetListNextMrIdsByMrId(int mrId)
@@ -736,4 +743,21 @@ public class MedicalRecordService : IMedicalRecordService
         }
         return new ApiResponse().SetBadRequest("Id not found");
     }
+
+    public async Task<ApiResponse> PayPrescriptionByMrId(int mrId)
+    {
+        var response = await _unitOfWork.PrescriptionRepo.PayPrescription(mrId);
+        if (response == true) 
+        {
+            await _unitOfWork.SaveChangeAsync();
+            return new ApiResponse().SetOk("Paid Prescription");
+        };
+        return new ApiResponse().SetBadRequest("Paid failed");
+    }
+}
+
+public class PresciptionStatusPaidModel
+{
+    public string Diagnose { get; set; } = string.Empty;
+    public bool IsPaid { get; set; } = false;
 }
