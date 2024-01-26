@@ -53,6 +53,7 @@ export interface MedicalRecordTableModel {
   priority: number;
   isCheckUpCompleted: string;
   index: number;
+  isHaveUnpaidPrescription :boolean
 }
 
 export interface PatientTableModel {
