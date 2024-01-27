@@ -61,12 +61,16 @@ public class PrescriptionRepo : GenericRepo<Prescription>, IPrescriptionRepo
             {
                 //Update available stock
                 var supplyPre = mr.ExaminationResult.Prescription.SuppliesPrescriptions.ToList()[i];
-                var supply = await _context.Supplies.Where(x => x.SId == supplyPre.SId).FirstOrDefaultAsync();
+                var supply = await _context.Supplies.Where(x => x.SId == supplyPre.SupplyId).FirstOrDefaultAsync();
                 if(supply != null)
                 {
                     if (supplyPre.Quantity > supply.UnitInStock) return false;
                     supply.UnitInStock -= (short)supplyPre.Quantity;
                     if (supply.UnitInStock < 0) return false;
+                }
+                else
+                {
+                    return false;
                 }
             }
             return true;

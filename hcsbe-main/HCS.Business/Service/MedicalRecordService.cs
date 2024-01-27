@@ -188,7 +188,7 @@ public class MedicalRecordService : IMedicalRecordService
         }
 
         // order list by date
-        listItemResponse = listItemResponse.OrderByDescending(x => x.MedicalRecordDate).ToList();
+        listItemResponse = listItemResponse.OrderBy(x => x.MedicalRecordDate).ToList();
         var paginationResult = listItemResponse.Paginate(pageIndex, pageSize);
         return response.SetOk(paginationResult);
     }
@@ -249,7 +249,7 @@ public class MedicalRecordService : IMedicalRecordService
         }
 
         // order list by date
-        listItemResponse = listItemResponse.OrderByDescending(x => x.MedicalRecordDate).ToList();
+        listItemResponse = listItemResponse.OrderBy(x => x.MedicalRecordDate).ToList();
         var paginationResult = listItemResponse.Paginate(pageIndex, pageSize);
         return response.SetOk(paginationResult);
     }
